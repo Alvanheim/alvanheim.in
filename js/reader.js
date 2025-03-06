@@ -18,19 +18,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const chapterInfoEl = document.getElementById('chapterInfo');
   const chapterSelect = document.getElementById('chapterSelect');
   
-  // Completely remove pagination container from the DOM if it exists
-  const paginationContainer = document.querySelector('.pagination-container');
-  if (paginationContainer) {
-    paginationContainer.remove();
-  }
-
-  // Also remove any existing pagination buttons that might exist independently
-  const prevChapterBtn = document.getElementById('prevChapter');
-  const nextChapterBtn = document.getElementById('nextChapter');
-  
-  if (prevChapterBtn) prevChapterBtn.remove();
-  if (nextChapterBtn) nextChapterBtn.remove();
-
   let comicData;
   let currentChapter = null;
   
@@ -144,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
         pageContainer.appendChild(pageWrapper);
       });
       
-      // Add end-of-chapter dropdown for navigation instead of pagination buttons
+      // Add end-of-chapter dropdown for navigation
       const endChapterNav = document.createElement('div');
       endChapterNav.className = 'end-chapter-navigation';
       
@@ -170,7 +157,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Add to page
       pageContainer.appendChild(endChapterNav);
       
-      // Add CSS for the new elements
+      // Add CSS for the new elements if not already present
       addEndChapterStyles();
       
     } else {
@@ -185,20 +172,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const styleEl = document.createElement('style');
     styleEl.id = 'end-chapter-styles';
     styleEl.textContent = `
-      /* Hide any pagination that might be added dynamically */
-      .pagination-container, 
-      #prevChapter, 
-      #nextChapter, 
-      [id*="pagination"], 
-      [class*="pagination"], 
-      [class*="pager"], 
-      [id*="pager"] {
-        display: none !important;
-        visibility: hidden !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-      }
-      
       .end-chapter-navigation {
         width: 100%;
         margin: 30px 0;
@@ -275,10 +248,4 @@ document.addEventListener('DOMContentLoaded', function() {
     
     document.head.appendChild(styleEl);
   }
-
-  // Remove keyboard navigation to avoid recreating pagination effect
-  document.removeEventListener('keydown', keyboardNavHandler);
 });
-
-// Define the function we're removing to avoid errors
-function keyboardNavHandler() {}

@@ -32,14 +32,19 @@ document.addEventListener('DOMContentLoaded', function() {
       return response.json();
     })
     .then(data => {
-      // Sort chapters in descending order
-      const sortedChapters = data.find(c => c.id === comicId).chapters.sort((a, b) => b.number - a.number);
-      comicData = {...data.find(c => c.id === comicId), chapters: sortedChapters};
-
-      if (!comicData) {
+      // Find the comic by ID
+      const comic = data.find(c => c.id === comicId);
+      if (!comic) {
         document.querySelector('.container').innerHTML = '<p>Comic not found</p>';
         return;
       }
+      
+      // Sort chapters in ascending order by number (numerical value)
+      const sortedChapters = [...comic.chapters].sort((a, b) => 
+        parseFloat(a.number) - parseFloat(b.number)
+      );
+      
+      comicData = {...comic, chapters: sortedChapters};
       
       // Populate the drop-down menu with chapters
       comicData.chapters.forEach((chapter, index) => {
@@ -74,8 +79,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const chapter = comicData.chapters[currentChapterIndex];
     // Set the chapter title
     chapterTitleEl.textContent = `Chapter ${chapter.number}: ${chapter.title}`;
-    // Update chapter info display in pagination
-    chapterInfoEl.textContent = `Chapter ${currentChapterIndex + 1} of ${comicData.chapters.length}`;
+    // Update chapter info display in pagination - use numerical order, not array index
+    chapterInfoEl.textContent = `Chapter ${chapter.number} of ${comicData.chapters.length}`;
 
     // Clear current pages
     pageContainer.innerHTML = '';
@@ -112,23 +117,42 @@ document.addEventListener('DOMContentLoaded', function() {
       pageContainer.innerHTML = '<p>No pages available for this chapter.</p>';
     }
     
-    // Update navigation buttons visibility and state
-    prevChapterBtn.style.display = (currentChapterIndex < comicData.chapters.length - 1) ? 'block' : 'none';
-    nextChapterBtn.style.display = (currentChapterIndex > 0) ? 'block' : 'none';
+    // Update navigation buttons - now properly handling numerical chapter values
+    const currentChapterNumber = parseFloat(chapter.number);
+    
+    // Find previous and next chapters based on numerical values
+    const prevChapter = comicData.chapters.find(c => 
+      parseFloat(c.number) < currentChapterNumber
+    );
+    
+    const nextChapter = comicData.chapters.filter(c => 
+      parseFloat(c.number) > currentChapterNumber
+    )[0]; // Get the first chapter with higher number
+    
+    // Update button visibility
+    prevChapterBtn.style.display = prevChapter ? 'block' : 'none';
+    nextChapterBtn.style.display = nextChapter ? 'block' : 'none';
+    
+    // Add data attributes for easy access in event handlers
+    if (prevChapter) {
+      prevChapterBtn.dataset.chapterNumber = prevChapter.number;
+    }
+    
+    if (nextChapter) {
+      nextChapterBtn.dataset.chapterNumber = nextChapter.number;
+    }
   }
 
   // Chapter navigation event listeners
   prevChapterBtn.addEventListener('click', () => {
-    if (currentChapterIndex < comicData.chapters.length - 1) {
-      const prevChapter = comicData.chapters[currentChapterIndex + 1];
-      window.location.href = `reader.html?comicId=${comicId}&chapter=${prevChapter.number}`;
+    if (prevChapterBtn.dataset.chapterNumber) {
+      window.location.href = `reader.html?comicId=${comicId}&chapter=${prevChapterBtn.dataset.chapterNumber}`;
     }
   });
 
   nextChapterBtn.addEventListener('click', () => {
-    if (currentChapterIndex > 0) {
-      const nextChapter = comicData.chapters[currentChapterIndex - 1];
-      window.location.href = `reader.html?comicId=${comicId}&chapter=${nextChapter.number}`;
+    if (nextChapterBtn.dataset.chapterNumber) {
+      window.location.href = `reader.html?comicId=${comicId}&chapter=${nextChapterBtn.dataset.chapterNumber}`;
     }
   });
 
@@ -140,4 +164,29 @@ document.addEventListener('DOMContentLoaded', function() {
       prevChapterBtn.click();
     }
   });
+  
+  // Add swipe navigation for mobile users
+  let touchstartX = 0;
+  let touchendX = 0;
+  
+  document.addEventListener('touchstart', e => {
+    touchstartX = e.changedTouches[0].screenX;
+  });
+  
+  document.addEventListener('touchend', e => {
+    touchendX = e.changedTouches[0].screenX;
+    handleSwipe();
+  });
+  
+  function handleSwipe() {
+    const threshold = 50; // Minimum swipe distance in pixels
+    
+    if (touchendX + threshold < touchstartX && nextChapterBtn.style.display !== 'none') {
+      // Swipe left - go to next chapter
+      nextChapterBtn.click();
+    } else if (touchendX > touchstartX + threshold && prevChapterBtn.style.display !== 'none') {
+      // Swipe right - go to previous chapter
+      prevChapterBtn.click();
+    }
+  }
 });

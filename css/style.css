@@ -182,7 +182,7 @@ nav ul li a:hover::after {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: 'assets/lv_0_20250302222544.gif');
+  background-image: url('https://raw.githubusercontent.com/Alvanheim/image-hosting-alvanheim/main/cover/1-WhatDoYouDoWhenYouSuddenlyBecomeAnImmortal%3F.jpg');
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;

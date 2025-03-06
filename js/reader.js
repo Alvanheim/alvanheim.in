@@ -16,9 +16,17 @@ document.addEventListener('DOMContentLoaded', function() {
   const chapterTitleEl = document.getElementById('chapter-title');
   const pageContainer = document.getElementById('page-container');
   const chapterInfoEl = document.getElementById('chapterInfo');
-  const prevChapterBtn = document.getElementById('prevChapter');
-  const nextChapterBtn = document.getElementById('nextChapter');
   const chapterSelect = document.getElementById('chapterSelect');
+  
+  // Remove pagination buttons if they exist
+  const paginationContainer = document.querySelector('.pagination-container');
+  if (paginationContainer) {
+    const prevChapterBtn = document.getElementById('prevChapter');
+    const nextChapterBtn = document.getElementById('nextChapter');
+    
+    if (prevChapterBtn) prevChapterBtn.style.display = 'none';
+    if (nextChapterBtn) nextChapterBtn.style.display = 'none';
+  }
 
   let comicData;
   let currentChapter = null;
@@ -52,16 +60,8 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
       
-      // Populate the drop-down menu with chapters
-      comicData.chapters.forEach(chapter => {
-        let option = document.createElement('option');
-        option.value = chapter.number;
-        option.textContent = `Chapter ${chapter.number}: ${chapter.title}`;
-        if (String(chapter.number) === chapterParam) {
-          option.selected = true;
-        }
-        chapterSelect.appendChild(option);
-      });
+      // Populate the top drop-down menu with chapters
+      populateChapterDropdown(chapterSelect, currentChapter.number);
       
       loadChapter();
     })
@@ -70,11 +70,27 @@ document.addEventListener('DOMContentLoaded', function() {
       document.querySelector('.container').innerHTML = '<p>Error loading chapter details: ' + error.message + '</p>';
     });
 
-  // Handle drop-down chapter selection change
-  chapterSelect.addEventListener('change', function() {
-    const selectedChapterNumber = this.value;
-    window.location.href = `reader.html?comicId=${comicId}&chapter=${selectedChapterNumber}`;
-  });
+  function populateChapterDropdown(selectElement, currentChapterNumber) {
+    // Clear existing options
+    selectElement.innerHTML = '';
+    
+    // Populate with chapters
+    comicData.chapters.forEach(chapter => {
+      let option = document.createElement('option');
+      option.value = chapter.number;
+      option.textContent = `Chapter ${chapter.number}: ${chapter.title}`;
+      if (String(chapter.number) === String(currentChapterNumber)) {
+        option.selected = true;
+      }
+      selectElement.appendChild(option);
+    });
+    
+    // Add change event listener
+    selectElement.addEventListener('change', function() {
+      const selectedChapterNumber = this.value;
+      window.location.href = `reader.html?comicId=${comicId}&chapter=${selectedChapterNumber}`;
+    });
+  }
 
   function loadChapter() {
     if (!currentChapter) return;
@@ -82,10 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set the chapter title
     chapterTitleEl.textContent = `Chapter ${currentChapter.number}: ${currentChapter.title}`;
     
-    // Get the current index in the sorted array
-    const currentIndex = comicData.chapters.findIndex(ch => ch.number === currentChapter.number);
-    
-    // Simplified chapter info - just show the chapter number as requested
+    // Simplified chapter info - just show the chapter number
     chapterInfoEl.textContent = `Chapter ${currentChapter.number}`;
 
     // Clear current pages
@@ -127,72 +140,101 @@ document.addEventListener('DOMContentLoaded', function() {
         pageWrapper.appendChild(img);
         pageContainer.appendChild(pageWrapper);
       });
+      
+      // Add end-of-chapter dropdown
+      const endChapterNav = document.createElement('div');
+      endChapterNav.className = 'end-chapter-navigation';
+      
+      // Create styled container
+      const navContainer = document.createElement('div');
+      navContainer.className = 'chapter-navigation-container';
+      
+      // Add heading
+      const navHeading = document.createElement('h3');
+      navHeading.textContent = 'Continue Reading';
+      navHeading.className = 'navigation-heading';
+      
+      // Create bottom dropdown
+      const bottomSelect = document.createElement('select');
+      bottomSelect.className = 'chapter-select-bottom';
+      populateChapterDropdown(bottomSelect, currentChapter.number);
+      
+      // Assemble elements
+      navContainer.appendChild(navHeading);
+      navContainer.appendChild(bottomSelect);
+      endChapterNav.appendChild(navContainer);
+      
+      // Add to page
+      pageContainer.appendChild(endChapterNav);
+      
+      // Add CSS for the new elements
+      addEndChapterStyles();
+      
     } else {
       pageContainer.innerHTML = '<p>No pages available for this chapter.</p>';
     }
+  }
+  
+  function addEndChapterStyles() {
+    // Check if styles already exist
+    if (document.getElementById('end-chapter-styles')) return;
     
-    // Set up navigation buttons based on adjacent chapters in the sorted array
-    const prevChapterIndex = currentIndex + 1; // Previous = next in array (since we're in descending order)
-    const nextChapterIndex = currentIndex - 1; // Next = previous in array
+    const styleEl = document.createElement('style');
+    styleEl.id = 'end-chapter-styles';
+    styleEl.textContent = `
+      .end-chapter-navigation {
+        width: 100%;
+        margin: 30px 0;
+        display: flex;
+        justify-content: center;
+      }
+      
+      .chapter-navigation-container {
+        background-color: #f5f5f5;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        width: 80%;
+        max-width: 500px;
+        text-align: center;
+      }
+      
+      .navigation-heading {
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: #333;
+        font-size: 18px;
+      }
+      
+      .chapter-select-bottom {
+        width: 100%;
+        padding: 10px 15px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: white;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 15px;
+      }
+      
+      .chapter-select-bottom:focus {
+        outline: none;
+        border-color: #666;
+        box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+      }
+    `;
     
-    // Clear any existing click handlers to prevent multiple handlers
-    prevChapterBtn.onclick = null;
-    nextChapterBtn.onclick = null;
-    
-    // Set up previous chapter button (higher number in descending order)
-    if (prevChapterIndex < comicData.chapters.length) {
-      const prevChapter = comicData.chapters[prevChapterIndex];
-      prevChapterBtn.style.display = 'block';
-      prevChapterBtn.onclick = function() {
-        window.location.href = `reader.html?comicId=${comicId}&chapter=${prevChapter.number}`;
-      };
-    } else {
-      prevChapterBtn.style.display = 'none';
-    }
-    
-    // Set up next chapter button (lower number in descending order)
-    if (nextChapterIndex >= 0) {
-      const nextChapter = comicData.chapters[nextChapterIndex];
-      nextChapterBtn.style.display = 'block';
-      nextChapterBtn.onclick = function() {
-        window.location.href = `reader.html?comicId=${comicId}&chapter=${nextChapter.number}`;
-      };
-    } else {
-      nextChapterBtn.style.display = 'none';
-    }
+    document.head.appendChild(styleEl);
   }
 
-  // Keyboard support: arrow keys for chapter navigation
+  // Keyboard support for page navigation
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'ArrowRight' && nextChapterBtn.style.display !== 'none') {
-      nextChapterBtn.click();
-    } else if (e.key === 'ArrowLeft' && prevChapterBtn.style.display !== 'none') {
-      prevChapterBtn.click();
-    }
+    // You can add page-specific keyboard navigation here if needed
   });
-  
-  // Add swipe navigation for mobile users
-  let touchstartX = 0;
-  let touchendX = 0;
-  
-  document.addEventListener('touchstart', e => {
-    touchstartX = e.changedTouches[0].screenX;
-  });
-  
-  document.addEventListener('touchend', e => {
-    touchendX = e.changedTouches[0].screenX;
-    handleSwipe();
-  });
-  
-  function handleSwipe() {
-    const threshold = 50; // Minimum swipe distance in pixels
-    
-    if (touchendX + threshold < touchstartX && nextChapterBtn.style.display !== 'none') {
-      // Swipe left - go to next chapter
-      nextChapterBtn.click();
-    } else if (touchendX > touchstartX + threshold && prevChapterBtn.style.display !== 'none') {
-      // Swipe right - go to previous chapter
-      prevChapterBtn.click();
-    }
-  }
 });

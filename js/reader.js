@@ -41,6 +41,9 @@ document.addEventListener('DOMContentLoaded', function() {
       
       comicData = comic;
       
+      // Sort chapters by number in descending order (newest first)
+      comicData.chapters.sort((a, b) => parseFloat(b.number) - parseFloat(a.number));
+      
       // Find the requested chapter by its number
       currentChapter = comicData.chapters.find(ch => String(ch.number) === chapterParam);
       
@@ -49,10 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
       
-      // Sort chapters in descending order for proper navigation (newest first)
-      comicData.chapters.sort((a, b) => parseFloat(b.number) - parseFloat(a.number));
-      
-      // Populate the drop-down menu with chapters in descending order
+      // Populate the drop-down menu with chapters
       comicData.chapters.forEach(chapter => {
         let option = document.createElement('option');
         option.value = chapter.number;
@@ -82,12 +82,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set the chapter title
     chapterTitleEl.textContent = `Chapter ${currentChapter.number}: ${currentChapter.title}`;
     
-    // Calculate the chapter index (position) in the sorted array
-    const totalChapters = comicData.chapters.length;
+    // Get the current index in the sorted array
     const currentIndex = comicData.chapters.findIndex(ch => ch.number === currentChapter.number);
     
-    // Update chapter info display in pagination - showing actual position/total
-    chapterInfoEl.textContent = `Chapter ${currentChapter.number} (${currentIndex + 1} of ${totalChapters})`;
+    // Simplified chapter info - just show the chapter number as requested
+    chapterInfoEl.textContent = `Chapter ${currentChapter.number}`;
 
     // Clear current pages
     pageContainer.innerHTML = '';
@@ -107,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const img = document.createElement('img');
         img.src = pageUrl;
         img.alt = `Page ${index + 1}`;
-        img.loading = 'lazy'; // Add lazy loading for better performance
+        img.loading = 'lazy';
         
         // Replace placeholder with image when loaded
         img.addEventListener('load', () => {
@@ -132,52 +131,36 @@ document.addEventListener('DOMContentLoaded', function() {
       pageContainer.innerHTML = '<p>No pages available for this chapter.</p>';
     }
     
-    // Set up navigation buttons based on current index in the sorted array
-    updateNavigationButtons(currentIndex);
-  }
-  
-  function updateNavigationButtons(currentIndex) {
-    // Previous chapter is the next in the array (since we sorted in descending order)
-    const prevChapterIndex = currentIndex + 1;
-    const prevChapter = comicData.chapters[prevChapterIndex];
+    // Set up navigation buttons based on adjacent chapters in the sorted array
+    const prevChapterIndex = currentIndex + 1; // Previous = next in array (since we're in descending order)
+    const nextChapterIndex = currentIndex - 1; // Next = previous in array
     
-    // Next chapter is the previous in the array
-    const nextChapterIndex = currentIndex - 1;
-    const nextChapter = comicData.chapters[nextChapterIndex];
+    // Clear any existing click handlers to prevent multiple handlers
+    prevChapterBtn.onclick = null;
+    nextChapterBtn.onclick = null;
     
-    // Update prev button
-    if (prevChapter) {
+    // Set up previous chapter button (higher number in descending order)
+    if (prevChapterIndex < comicData.chapters.length) {
+      const prevChapter = comicData.chapters[prevChapterIndex];
       prevChapterBtn.style.display = 'block';
-      prevChapterBtn.setAttribute('data-chapter', prevChapter.number);
-      prevChapterBtn.title = `Go to Chapter ${prevChapter.number}`;
+      prevChapterBtn.onclick = function() {
+        window.location.href = `reader.html?comicId=${comicId}&chapter=${prevChapter.number}`;
+      };
     } else {
       prevChapterBtn.style.display = 'none';
     }
     
-    // Update next button
-    if (nextChapter) {
+    // Set up next chapter button (lower number in descending order)
+    if (nextChapterIndex >= 0) {
+      const nextChapter = comicData.chapters[nextChapterIndex];
       nextChapterBtn.style.display = 'block';
-      nextChapterBtn.setAttribute('data-chapter', nextChapter.number);
-      nextChapterBtn.title = `Go to Chapter ${nextChapter.number}`;
+      nextChapterBtn.onclick = function() {
+        window.location.href = `reader.html?comicId=${comicId}&chapter=${nextChapter.number}`;
+      };
     } else {
       nextChapterBtn.style.display = 'none';
     }
   }
-
-  // Chapter navigation event listeners
-  prevChapterBtn.addEventListener('click', () => {
-    const chapterNumber = prevChapterBtn.getAttribute('data-chapter');
-    if (chapterNumber) {
-      window.location.href = `reader.html?comicId=${comicId}&chapter=${chapterNumber}`;
-    }
-  });
-
-  nextChapterBtn.addEventListener('click', () => {
-    const chapterNumber = nextChapterBtn.getAttribute('data-chapter');
-    if (chapterNumber) {
-      window.location.href = `reader.html?comicId=${comicId}&chapter=${chapterNumber}`;
-    }
-  });
 
   // Keyboard support: arrow keys for chapter navigation
   document.addEventListener('keydown', function(e) {

@@ -18,15 +18,18 @@ document.addEventListener('DOMContentLoaded', function() {
   const chapterInfoEl = document.getElementById('chapterInfo');
   const chapterSelect = document.getElementById('chapterSelect');
   
-  // Remove pagination buttons if they exist
+  // Completely remove pagination container from the DOM if it exists
   const paginationContainer = document.querySelector('.pagination-container');
   if (paginationContainer) {
-    const prevChapterBtn = document.getElementById('prevChapter');
-    const nextChapterBtn = document.getElementById('nextChapter');
-    
-    if (prevChapterBtn) prevChapterBtn.style.display = 'none';
-    if (nextChapterBtn) nextChapterBtn.style.display = 'none';
+    paginationContainer.remove();
   }
+
+  // Also remove any existing pagination buttons that might exist independently
+  const prevChapterBtn = document.getElementById('prevChapter');
+  const nextChapterBtn = document.getElementById('nextChapter');
+  
+  if (prevChapterBtn) prevChapterBtn.remove();
+  if (nextChapterBtn) nextChapterBtn.remove();
 
   let comicData;
   let currentChapter = null;
@@ -141,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
         pageContainer.appendChild(pageWrapper);
       });
       
-      // Add end-of-chapter dropdown
+      // Add end-of-chapter dropdown for navigation instead of pagination buttons
       const endChapterNav = document.createElement('div');
       endChapterNav.className = 'end-chapter-navigation';
       
@@ -182,6 +185,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const styleEl = document.createElement('style');
     styleEl.id = 'end-chapter-styles';
     styleEl.textContent = `
+      /* Hide any pagination that might be added dynamically */
+      .pagination-container, 
+      #prevChapter, 
+      #nextChapter, 
+      [id*="pagination"], 
+      [class*="pagination"], 
+      [class*="pager"], 
+      [id*="pager"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+      
       .end-chapter-navigation {
         width: 100%;
         margin: 30px 0;
@@ -228,13 +245,40 @@ document.addEventListener('DOMContentLoaded', function() {
         border-color: #666;
         box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
       }
+      
+      /* Page wrapper and image styles */
+      .page-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 15px;
+      }
+      
+      .page-wrapper img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+      }
+      
+      .page-number-placeholder {
+        width: 100%;
+        height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f9f9f9;
+        border: 1px solid #eee;
+        border-radius: 4px;
+        color: #999;
+        font-size: 18px;
+      }
     `;
     
     document.head.appendChild(styleEl);
   }
 
-  // Keyboard support for page navigation
-  document.addEventListener('keydown', function(e) {
-    // You can add page-specific keyboard navigation here if needed
-  });
+  // Remove keyboard navigation to avoid recreating pagination effect
+  document.removeEventListener('keydown', keyboardNavHandler);
 });
+
+// Define the function we're removing to avoid errors
+function keyboardNavHandler() {}

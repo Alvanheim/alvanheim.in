@@ -16,5 +16,14 @@
     "title": "糖人动漫",
     "releaseDate": "2024-11-17",
     "coverImage": "https://github.com/Alvanheim/image-hosting-alvanheim/blob/main/cover/1-WhatDoYouDoWhenYouSuddenlyBecomeAnImmortal%3F.jpg?raw=true.jpg"
+  },
+    {
+    "comicId": 2,
+    "id": 1,
+    "comicTitle": "If Her Flag Breaks",
+    "chapterNumber": 27,
+    "title": "がをられ",
+    "releaseDate": "2025-04-09",
+    "coverImage": "https://raw.githubusercontent.com/Alvanheim/image-hosting-alvanheim/main/main/cover/2-IfHerFlagBreaks.jpg"
   }
 ]

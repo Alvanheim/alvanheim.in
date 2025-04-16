@@ -4,7 +4,7 @@
     "id": 1,
     "comicTitle": "What Do You Do When You Suddenly Become An Immortal",
     "chapterNumber": 183,
-    "title": "糖人动漫",
+    "title": "\u7cd6\u4eba\u52a8\u6f2b",
     "releaseDate": "2024-12-02",
     "coverImage": "https://github.com/Alvanheim/image-hosting-alvanheim/blob/main/cover/1-WhatDoYouDoWhenYouSuddenlyBecomeAnImmortal%3F.jpg?raw=true.jpg"
   },
@@ -13,17 +13,26 @@
     "id": 2,
     "comicTitle": "What Do You Do When You Suddenly Become An Immortal",
     "chapterNumber": 182,
-    "title": "糖人动漫",
+    "title": "\u7cd6\u4eba\u52a8\u6f2b",
     "releaseDate": "2024-11-17",
     "coverImage": "https://github.com/Alvanheim/image-hosting-alvanheim/blob/main/cover/1-WhatDoYouDoWhenYouSuddenlyBecomeAnImmortal%3F.jpg?raw=true.jpg"
   },
-    {
+  {
     "comicId": 2,
     "id": 1,
     "comicTitle": "If Her Flag Breaks",
     "chapterNumber": 27,
-    "title": "がをられ",
+    "title": "\u304c\u3092\u3089\u308c",
     "releaseDate": "2025-04-09",
     "coverImage": "https://github.com/Alvanheim/image-hosting-alvanheim/blob/main/cover/2-IfHerFlagBreaks.jpg?raw=true"
+  },
+  {
+    "comicId": 2,
+    "id": 2,
+    "comicTitle": "If Her Flag Breaks",
+    "chapterNumber": 26,
+    "title": "Takei Touka, Nagian",
+    "releaseDate": "2025-04-16",
+    "coverImage": "https://raw.githubusercontent.com/Alvanheim/image-hosting-alvanheim/main/cover/2-IfHerFlagBreaks.jpg"
   }
 ]
